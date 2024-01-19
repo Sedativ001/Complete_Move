@@ -1,0 +1,51 @@
+using UnityEngine;
+
+public class PlayerController : MonoBehaviour
+{
+    public float speed = 5f;
+    public float rotationSpeed = 180f;
+    public float jumpForce = 8f;
+    public LayerMask groundLayer;
+
+    private bool isGrounded;
+    private bool isCrouching;
+
+    void Update()
+    {
+        // Movimento
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+
+        Vector3 direction = new Vector3(horizontal, 0, vertical);
+        Vector3 velocity = direction.normalized * speed;
+
+        transform.Translate(velocity * Time.deltaTime);
+
+        // Rotação
+        float rotationInput = Input.GetAxis("Rotation");
+        transform.Rotate(Vector3.up, rotationInput * rotationSpeed * Time.deltaTime);
+
+        // Verifica se está no chão
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, 0.1f, groundLayer);
+
+        // Pulo
+        if (isGrounded && Input.GetButtonDown("Jump"))
+        {
+            GetComponent<Rigidbody>().AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
+
+        // Agachar
+        if (Input.GetButtonDown("Crouch"))
+        {
+            isCrouching = true;
+            // Ajuste a altura do personagem enquanto agacha
+            transform.localScale = new Vector3(1, 0.5f, 1);
+        }
+        else if (Input.GetButtonUp("Crouch"))
+        {
+            isCrouching = false;
+            // Restaura a altura original do personagem
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+    }
+}
